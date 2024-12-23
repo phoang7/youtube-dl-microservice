@@ -96,7 +96,7 @@ def get_title():
 
 @app.route('/download_mp4', methods=['POST'])
 def download_mp4():
-    if not is_ffmpeg_installed():
+    if not is_ffmpeg_installed_helper():
         return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed', 400
     try:
         json_data = request.get_json(force=True)
@@ -158,7 +158,7 @@ def download_mp4():
 
 @app.route('/download_mp3', methods=['POST'])
 def download_mp3():
-    if not is_ffmpeg_installed():
+    if not is_ffmpeg_installed_helper():
         return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed', 400
     try:
         json_data = request.get_json(force=True)
@@ -244,6 +244,11 @@ def get_video_info():
         return get_invalid_url_output(), 400
     except Exception as ex:
         return f'An error occured: {ex}', 400
+    
+
+@app.route('/is_ffmpeg_installed', methods=['GET'])
+def is_ffmpeg_installed():
+    return jsonify(is_ffmpeg_installed_helper()), 200
 
 
 def get_invalid_url_output():
@@ -253,7 +258,7 @@ def get_invalid_url_output():
     return f'Invalid "url" and/or video_id passed. This API supports the following YouTube url patterns: "{p1}", "{p2}", and "{p3}"'
 
 
-def is_ffmpeg_installed():
+def is_ffmpeg_installed_helper():
     try:
         res = subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, text=True)
         version_line = res.stdout.splitlines()[0]
