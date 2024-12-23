@@ -8,10 +8,11 @@ import sys
 import tempfile
 import subprocess
 import re
+import argparse
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
-tmp_dir = tempfile.TemporaryDirectory(prefix='youtube-dl-tmp-', dir=os.getcwd())
+output_dir = None
 
 
 @app.route('/')
@@ -118,6 +119,7 @@ def download_mp4():
                                          mime_type='audio/mp4').order_by('abr').desc().get_by_itag(audio_itag)
         if not audio_stream:
             return 'Invalid "audio_itag" passed.', 400
+        tmp_dir = tempfile.TemporaryDirectory(prefix='youtube-dl-tmp-', dir=os.getcwd())
         start = datetime.now()
         video_stream.download(output_path=tmp_dir.name, filename='video.mp4')
         print('\nVideo stream download complete.')
@@ -131,18 +133,17 @@ def download_mp4():
         video_path = os.path.join(tmp_dir.name, 'video.mp4')
         audio_path = os.path.join(tmp_dir.name, 'audio.mp4')
         clean_title = get_clean_video_title(yt.title)
-        output_path = os.path.join(tmp_dir.name, f'{clean_title}.mp4')
+        output_path = os.path.join(output_dir, f'{clean_title}.mp4')
         cmd = f'ffmpeg -y -loglevel quiet -i {video_path} -i {audio_path} -c:v copy -c:a copy {output_path}'
         start = datetime.now()
         subprocess.run(cmd)
         end = datetime.now()
+        tmp_dir.cleanup()
         merge_total_seconds = (end - start).total_seconds()
         total_seconds = video_download_total_seconds + audio_download_total_seconds + merge_total_seconds
-        os.remove(video_path)
-        os.remove(audio_path)
         res = {
             'file_name': f'{clean_title}.mp4',
-            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'),
+            'file_location': output_dir if sys.platform != 'win32' else output_dir.replace('\\', '/'),
             'filesize_mb': round(os.path.getsize(output_path) / (1024 ** 2), 2),
             'video_download_total_seconds': float(f'{video_download_total_seconds:.03f}'),
             'audio_download_total_seconds': float(f'{audio_download_total_seconds:.03f}'),
@@ -174,6 +175,7 @@ def download_mp3():
                                             mime_type='audio/mp4').order_by('abr').desc().get_by_itag(audio_itag)
         if not audio_stream:
             return 'Invalid "audio_itag" passed.', 400
+        tmp_dir = tempfile.TemporaryDirectory(prefix='youtube-dl-tmp-', dir=os.getcwd())
         start = datetime.now()
         audio_stream.download(output_path=tmp_dir.name, filename='audio.mp4')
         print('\nAudio stream download complete.')
@@ -181,16 +183,16 @@ def download_mp3():
         download_total_seconds = (end - start).total_seconds()
         mp4_path = os.path.join(tmp_dir.name, 'audio.mp4')
         clean_title = get_clean_video_title(yt.title)
-        mp3_path = os.path.join(tmp_dir.name, f'{clean_title}.mp3')
+        mp3_path = os.path.join(output_dir, f'{clean_title}.mp3')
         start = datetime.now()
         subprocess.run(f'ffmpeg -y -loglevel quiet -i {mp4_path} -f mp3 -ab 320000 -vn {mp3_path}')
         end = datetime.now()
+        tmp_dir.cleanup()
         convert_total_seconds = (end - start).total_seconds()
         total_seconds = convert_total_seconds + download_total_seconds
-        os.remove(mp4_path)
         res = {
             'file_name': f'{clean_title}.mp3',
-            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'),
+            'file_location': output_dir if sys.platform != 'win32' else output_dir.replace('\\', '/'),
             'filesize_mb': round(os.path.getsize(mp3_path) / (1024 ** 2), 2),
             'audio_download_total_seconds': float(f'{download_total_seconds:.03f}'),
             'convert_total_seconds': float(f'{convert_total_seconds:.03f}'),
@@ -253,6 +255,11 @@ def is_ffmpeg_installed():
     return jsonify(is_ffmpeg_installed_helper()), 200
 
 
+@app.route('/output_directory_path', methods=['GET'])
+def get_output_directory_path():
+    return jsonify({'output_directory_path': output_dir if sys.platform != 'win32' else output_dir.replace('\\', '/')}), 200
+
+
 def get_invalid_url_output():
     p1 = r'https://youtube.com/watch?v={video_id}'
     p2 = r'https://youtube.com/embed/{video_id}'
@@ -283,4 +290,9 @@ def get_clean_video_title(video_title):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-dest', '--destination', default='.', type=str, help='destination directory (absolute path) to download output files (not streams) to, defaults to current directory')
+    args = parser.parse_args()
+    print(f'Destination directory: {os.path.abspath(args.destination)}')
+    output_dir = os.path.abspath(args.destination)
     app.run(debug=True, port=port)
