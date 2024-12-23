@@ -1,5 +1,6 @@
 from pytubefix import YouTube
 from pytubefix.exceptions import RegexMatchError
+from pytubefix.cli import on_progress
 from flask import Flask, jsonify, request
 from datetime import datetime
 import os
@@ -10,7 +11,7 @@ import re
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
-tmp_dir = tempfile.TemporaryDirectory(suffix='-tmp', prefix='youtube-dl-', dir=os.getcwd())
+tmp_dir = tempfile.TemporaryDirectory(prefix='youtube-dl-tmp-', dir=os.getcwd())
 
 
 @app.route('/')
@@ -35,7 +36,12 @@ def get_mp4_streams():
                 'resolution': stream.resolution,
                 'fps': stream.fps,
                 'video_codec': stream.video_codec,
-                'progressive': stream.is_progressive
+                'is_adaptive': stream.is_adaptive,
+                'filesize_mb': round(stream.filesize_mb, 2),
+                'height': stream.height,
+                'width': stream.width,
+                'includes_audio_track': stream.includes_audio_track,
+                'includes_video_track': stream.includes_video_track
             }
             res.append(stream_data)
         return jsonify({'streams': res}), 200 if res else 204
@@ -61,7 +67,10 @@ def get_audio_streams():
                 'type': stream.mime_type,
                 'abr': stream.abr,
                 'audio_codec': stream.audio_codec,
-                'progressive': stream.is_progressive
+                'is_adaptive': stream.is_adaptive,
+                'filesize_mb': round(stream.filesize_mb, 2),
+                'includes_audio_track': stream.includes_audio_track,
+                'includes_video_track': stream.includes_video_track
             }
             res.append(stream_data)
         return jsonify({'streams': res}), 200 if res else 204
@@ -98,7 +107,7 @@ def download_mp4():
         if 'audio_itag' not in json_data:
             return 'No "audio_itag" passed in request body.', 400
         url = json_data['url']
-        yt = YouTube(url)
+        yt = YouTube(url, on_progress_callback=on_progress)
         video_itag = json_data['video_itag']
         video_stream = yt.streams.filter(file_extension='mp4', adaptive=True,
                                          mime_type='video/mp4').order_by('resolution').desc().get_by_itag(video_itag)
@@ -111,10 +120,12 @@ def download_mp4():
             return 'Invalid "audio_itag" passed.', 400
         start = datetime.now()
         video_stream.download(output_path=tmp_dir.name, filename='video.mp4')
+        print('\nVideo stream download complete.')
         end = datetime.now()
         video_download_total_seconds = (end - start).total_seconds()
         start = datetime.now()
         audio_stream.download(output_path=tmp_dir.name, filename='audio.mp4')
+        print('\nAudio stream download complete.')
         end = datetime.now()
         audio_download_total_seconds = (end - start).total_seconds()
         video_path = os.path.join(tmp_dir.name, 'video.mp4')
@@ -156,7 +167,7 @@ def download_mp3():
         if 'audio_itag' not in json_data:
             return 'No "audio_itag" passed in request body.', 400
         url = json_data['url']
-        yt = YouTube(url)
+        yt = YouTube(url, on_progress_callback=on_progress)
         audio_itag = json_data['audio_itag']
         audio_stream = yt.streams.filter(only_audio=True,
                                             mime_type='audio/mp4').order_by('abr').desc().get_by_itag(audio_itag)
@@ -164,6 +175,7 @@ def download_mp3():
             return 'Invalid "audio_itag" passed.', 400
         start = datetime.now()
         audio_stream.download(output_path=tmp_dir.name, filename='audio.mp4')
+        print('\nAudio stream download complete.')
         end = datetime.now()
         download_total_seconds = (end - start).total_seconds()
         mp4_path = os.path.join(tmp_dir.name, 'audio.mp4')
@@ -198,6 +210,36 @@ def get_thumbnail():
             raise TypeError('No url passed as query parameter.')
         yt = YouTube(url)
         return jsonify({'thumbnail_url': yt.thumbnail_url}), 200
+    except RegexMatchError:
+        return get_invalid_url_output(), 400
+    except Exception as ex:
+        return f'An error occured: {ex}', 400
+
+
+@app.route('/video_info', methods=['GET'])
+def get_video_info():
+    try:
+        url = request.args.get('url')
+        if not url:
+            raise TypeError('No url passed as query parameter.')
+        yt = YouTube(url)
+        res = {
+            'title': yt.title,
+            'author': yt.author,
+            'channel_id': yt.channel_id,
+            'channel_url': yt.channel_url,
+            'description': yt.description,
+            'video_id': yt.video_id,
+            'video_url': f'https://youtube.com/watch?v={yt.video_id}',
+            'length_in_minutes': round(yt.length / 60, 2),
+            'likes': int(yt.likes) if yt.likes else yt.likes,
+            'publish_date': yt.publish_date,
+            'rating': yt.rating,
+            'views': yt.views,
+            'keywords': yt.keywords,
+            'thumbnail_url': yt.thumbnail_url
+        }
+        return jsonify(res), 200
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
