@@ -142,7 +142,8 @@ def download_mp4():
         os.remove(audio_path)
         res = {
             'file_name': f'{clean_title}.mp4',
-            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'), 
+            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'),
+            'filesize_mb': round(os.path.getsize(output_path) / (1024 ** 2), 2),
             'video_download_total_seconds': float(f'{video_download_total_seconds:.03f}'),
             'audio_download_total_seconds': float(f'{audio_download_total_seconds:.03f}'),
             'merge_total_seconds': float(f'{merge_total_seconds:.03f}'),
@@ -189,7 +190,8 @@ def download_mp3():
         os.remove(mp4_path)
         res = {
             'file_name': f'{clean_title}.mp3',
-            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'), 
+            'file_location': tmp_dir.name if sys.platform != 'win32' else tmp_dir.name.replace('\\', '/'),
+            'filesize_mb': round(os.path.getsize(mp3_path) / (1024 ** 2), 2),
             'audio_download_total_seconds': float(f'{download_total_seconds:.03f}'),
             'convert_total_seconds': float(f'{convert_total_seconds:.03f}'),
             'total_seconds_elasped': float(f'{total_seconds:.03f}'),
