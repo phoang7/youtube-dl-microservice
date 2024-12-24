@@ -57,7 +57,7 @@ def get_audio_streams():
     try:
         url = request.args.get('url')
         if not url:
-            return 'No "url" passed as query parameter', 400
+            return 'No "url" passed as query parameter.', 400
         yt = YouTube(url)
         audio_streams = yt.streams.filter(only_audio=True,
                                             mime_type='audio/mp4').order_by('abr').desc()
@@ -136,7 +136,7 @@ def download_mp4():
         output_path = os.path.join(output_dir, f'{clean_title}.mp4')
         cmd = f'ffmpeg -y -loglevel quiet -i {video_path} -i {audio_path} -c:v copy -c:a copy {output_path}'
         start = datetime.now()
-        subprocess.run(cmd)
+        subprocess.run(cmd, shell=True)
         end = datetime.now()
         tmp_dir.cleanup()
         merge_total_seconds = (end - start).total_seconds()
@@ -193,7 +193,8 @@ def download_mp3():
         clean_title = get_clean_video_title(yt.title)
         mp3_path = os.path.join(output_dir, f'{clean_title}.mp3')
         start = datetime.now()
-        subprocess.run(f'ffmpeg -y -loglevel quiet -i {mp4_path} -f mp3 -ab 320000 -vn {mp3_path}')
+        subprocess.run(f'ffmpeg -y -loglevel quiet -i {mp4_path} -f mp3 -ab 320000 -vn {mp3_path}',
+                       shell=True)
         end = datetime.now()
         tmp_dir.cleanup()
         convert_total_seconds = (end - start).total_seconds()
