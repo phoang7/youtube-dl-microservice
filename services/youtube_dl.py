@@ -149,7 +149,15 @@ def download_mp4():
             'audio_download_total_seconds': float(f'{audio_download_total_seconds:.03f}'),
             'merge_total_seconds': float(f'{merge_total_seconds:.03f}'),
             'total_seconds_elasped': float(f'{total_seconds:.03f}'),
-            'video_title': yt.title
+            'video_title': yt.title,
+            'height': video_stream.height,
+            'width': video_stream.width,
+            'video_stream_download_size_mb': round(video_stream.filesize_mb, 2),
+            'audio_stream_download_size_mb': round(audio_stream.filesize_mb, 2),
+            'resolution': video_stream.resolution,
+            'fps': video_stream.fps,
+            'includes_audio_track': audio_stream.includes_audio_track,
+            'includes_video_track': video_stream.includes_video_track
         }
         return jsonify(res), 200
     except RegexMatchError:
@@ -197,7 +205,11 @@ def download_mp3():
             'audio_download_total_seconds': float(f'{download_total_seconds:.03f}'),
             'convert_total_seconds': float(f'{convert_total_seconds:.03f}'),
             'total_seconds_elasped': float(f'{total_seconds:.03f}'),
-            'video_title': yt.title
+            'video_title': yt.title,
+            'audio_stream_download_size_mb': round(audio_stream.filesize_mb, 2),
+            'abr': audio_stream.abr,
+            'includes_audio_track': audio_stream.includes_audio_track,
+            'includes_video_track': audio_stream.includes_video_track
         }
         return jsonify(res), 200
     except RegexMatchError:
