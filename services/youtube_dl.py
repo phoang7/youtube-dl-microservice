@@ -17,7 +17,7 @@ output_dir = None
 
 @app.route('/')
 def home():
-    return 'Hello, this is a Flask Microservice for downloading YouTube videos!'
+    return 'Hello, this is a Flask Microservice for downloading YouTube videos!', 200
 
 
 @app.route('/video_quality', methods=['GET'])
