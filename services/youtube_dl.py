@@ -25,7 +25,7 @@ def get_mp4_streams():
     try:
         url = request.args.get('url')
         if not url:
-            return 'No "url" passed as query parameter', 400
+            return 'No "url" passed as query parameter.', 400
         yt = YouTube(url)
         video_streams = yt.streams.filter(file_extension='mp4', adaptive=True,
                                             mime_type='video/mp4').order_by('resolution').desc()
@@ -49,7 +49,7 @@ def get_mp4_streams():
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
 
 
 @app.route('/audio_quality', methods=['GET'])
@@ -78,7 +78,7 @@ def get_audio_streams():
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
 
 
 @app.route('/title', methods=['GET'])
@@ -86,19 +86,19 @@ def get_title():
     try:
         url = request.args.get('url')
         if not url:
-            raise TypeError('No url passed as query parameter.')
+            return 'No "url" passed as query parameter.', 400
         yt = YouTube(url)
         return jsonify({'title': yt.title}), 200
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
 
 
 @app.route('/download_mp4', methods=['POST'])
 def download_mp4():
     if not is_ffmpeg_installed_helper():
-        return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed', 400
+        return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed.', 400
     try:
         json_data = request.get_json(force=True)
         if 'url' not in json_data:
@@ -163,13 +163,13 @@ def download_mp4():
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
     
 
 @app.route('/download_mp3', methods=['POST'])
 def download_mp3():
     if not is_ffmpeg_installed_helper():
-        return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed', 400
+        return 'ffmpeg is not installed, aborting download operation. Please ensure ffmpeg is installed.', 400
     try:
         json_data = request.get_json(force=True)
         if 'url' not in json_data:
@@ -215,7 +215,7 @@ def download_mp3():
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
 
 
 @app.route('/thumbnail', methods=['GET'])
@@ -223,13 +223,13 @@ def get_thumbnail():
     try:
         url = request.args.get('url')
         if not url:
-            raise TypeError('No url passed as query parameter.')
+            return 'No "url" passed as query parameter.', 400
         yt = YouTube(url)
         return jsonify({'thumbnail_url': yt.thumbnail_url}), 200
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
 
 
 @app.route('/video_info', methods=['GET'])
@@ -237,7 +237,7 @@ def get_video_info():
     try:
         url = request.args.get('url')
         if not url:
-            raise TypeError('No url passed as query parameter.')
+            return 'No "url" passed as query parameter.', 400
         yt = YouTube(url)
         res = {
             'title': yt.title,
@@ -259,7 +259,7 @@ def get_video_info():
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
-        return f'An error occured: {ex}', 400
+        return f'An error occured: {ex}.', 400
     
 
 @app.route('/is_ffmpeg_installed', methods=['GET'])
@@ -276,7 +276,7 @@ def get_invalid_url_output():
     p1 = r'https://youtube.com/watch?v={video_id}'
     p2 = r'https://youtube.com/embed/{video_id}'
     p3 = r'https://youtu.be/{video_id}'
-    return f'Invalid "url" and/or video_id passed. This API supports the following YouTube url patterns: "{p1}", "{p2}", and "{p3}"'
+    return f'Invalid "url" and/or video_id passed. This API supports the following YouTube url patterns: "{p1}", "{p2}", and "{p3}".'
 
 
 def is_ffmpeg_installed_helper():
