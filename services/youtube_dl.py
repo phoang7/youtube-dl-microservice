@@ -164,7 +164,7 @@ def download_mp4():
         return get_invalid_url_output(), 400
     except Exception as ex:
         return f'An error occured: {ex}.', 400
-    
+
 
 @app.route('/download_mp3', methods=['POST'])
 def download_mp3():
@@ -261,7 +261,7 @@ def get_video_info():
         return get_invalid_url_output(), 400
     except Exception as ex:
         return f'An error occured: {ex}.', 400
-    
+
 
 @app.route('/is_ffmpeg_installed', methods=['GET'])
 def is_ffmpeg_installed():
