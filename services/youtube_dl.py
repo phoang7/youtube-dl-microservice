@@ -134,7 +134,7 @@ def download_mp4():
         audio_path = os.path.join(tmp_dir.name, 'audio.mp4')
         clean_title = get_clean_video_title(yt.title)
         output_path = os.path.join(output_dir, f'{clean_title}.mp4')
-        cmd = f'ffmpeg -y -loglevel quiet -i {video_path} -i {audio_path} -c:v copy -c:a copy {output_path}'
+        cmd = f'ffmpeg -y -loglevel quiet -i "{video_path}" -i "{audio_path}" -c:v copy -c:a copy "{output_path}"'
         start = datetime.now()
         subprocess.run(cmd, shell=True)
         end = datetime.now()
@@ -193,7 +193,7 @@ def download_mp3():
         clean_title = get_clean_video_title(yt.title)
         mp3_path = os.path.join(output_dir, f'{clean_title}.mp3')
         start = datetime.now()
-        subprocess.run(f'ffmpeg -y -loglevel quiet -i {mp4_path} -f mp3 -ab 320000 -vn {mp3_path}',
+        subprocess.run(f'ffmpeg -y -loglevel quiet -i "{mp4_path}" -f mp3 -ab 320000 -vn "{mp3_path}"',
                        shell=True)
         end = datetime.now()
         tmp_dir.cleanup()
