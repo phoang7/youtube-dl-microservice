@@ -12,7 +12,10 @@ import argparse
 
 app = Flask(__name__)
 port = int(os.environ.get('PORT', 5000))
-output_dir = None
+output_dir = os.getcwd()
+download_path = os.environ.get('YOUTUBE_OUTPUT', None)
+if download_path:
+    output_dir = os.path.abspath(download_path)
 
 
 @app.route('/')
@@ -306,6 +309,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-dest', '--destination', default='.', type=str, help='destination directory (absolute path) to download output files (not streams) to, defaults to current directory')
     args = parser.parse_args()
-    print(f'Destination directory: {os.path.abspath(args.destination)}')
-    output_dir = os.path.abspath(args.destination)
+    if not download_path and args.destination:
+        print(f'Destination directory: {os.path.abspath(args.destination)}')
+        output_dir = os.path.abspath(args.destination)
     app.run(debug=True, port=port)
