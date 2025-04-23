@@ -23,7 +23,10 @@ Simple REST microservice written in Flask that can download YouTube videos local
 7. To exit microservice, in terminal or command prompt where service is running, perform input `Ctrl + C`.
 
 ## API Doc
-See `api-doc.yaml` to view API documentation (**coming soon!**)
+See `api-doc.yaml` to view API documentation.
+
+## Can I run this service in Docker?
+Yes, make sure to replace the value `/your_volume_path` in `compose.yaml` with the value of the absolute path on your client/machine where you want YouTube files to be downloaded to. Also make sure to include the port in the url when invoking APIs. The default port is `8000`.
 
 ## Can I use a newer or older release of pytubefix?
 pytubefix is not maintained by me. Use the version or release that works best for you!
