@@ -166,9 +166,154 @@ paths:
 
 
   /download_mp4:
+    post:
+      summary: Downloads and merges video and audio streams from input url as mp4 file.
+      description: Downloads and merges video and audio streams from input url as mp4 file.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: YouTube video url.
+                video_itag:
+                  type: number
+                  description: Video itag for stream object for YouTube video.
+                audio_itag:
+                  type: number
+                  description: Audio itag for stream object for YouTube video.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+              properties:
+                file_name:
+                  type: string
+                  description: Name of downloaded YouTube output file.
+                file_location:
+                  type: string
+                  description: Diretory or path where the downloaded YouTube output file is stored.
+                filesize_mb:
+                  type: number
+                  description: Size of downloaded YouTube output file in megabytes.
+                video_download_total_seconds:
+                  type: number
+                  description: Time elasped to download video stream in seconds.
+                audio_download_total_seconds:
+                  type: number
+                  description: Time elasped to download audio stream in seconds.
+                merge_total_seconds:
+                  type: number
+                  description: Time elasped to merge audio and video stream as one file in seconds.
+                total_seconds_elasped:
+                  type: number
+                  description: Time elasped to perform entire operation (download + merge audio/video streams together) in seconds.
+                video_title:
+                  type: string
+                  description: Title of YouTube video from input url.
+                height:
+                  type: number
+                  description: Height in pixels for downloaded Youtube output file.
+                width:
+                  type: number
+                  description: Width in pixels for downloaded Youtube output file.
+                video_stream_download_size_mb:
+                  type: number
+                  description: File size of video stream object downloaded in megabytes.
+                audio_stream_download_size_mb:
+                  type: number
+                  description: File size of audio stream object downloaded in megabytes.
+                resolution:
+                  type: string
+                  description: Video resolution for downloaded Youtube output file.
+                fps:
+                  type: number
+                  description: Frames per second for downloaded Youtube output file.
+                includes_audio_track:
+                  type: boolean
+                  description: Downloaded YouTube output file includes or does not include audio track.
+                includes_video_track:
+                  type: boolean
+                  description: Downloaded YouTube output file includes or does not include video track.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
 
 
   /download_mp3:
+    post:
+      summary: Downloads and converts YouTube video from input url as mp3 audio format.
+      description: Downloads and converts YouTube video from input url as mp3 audio format.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: YouTube video url.
+                audio_itag:
+                  type: number
+                  description: Audio itag for stream object for YouTube video.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  file_name:
+                    type: string
+                    description: Name of downloaded YouTube output file.
+                  file_location:
+                    type: string
+                    description: Diretory or path where the downloaded YouTube output file is stored.
+                  filesize_mb:
+                    type: number
+                    description: Size of downloaded YouTube output file in megabytes.
+                  audio_download_total_seconds:
+                    type: number
+                    description: Time elasped to download audio stream in seconds.
+                  convert_total_seconds:
+                    type: number
+                    description: Time elasped to convert audio stream to mp3 format with ffmpeg in seconds.
+                  total_seconds_elasped:
+                    type: number
+                    description: Time elasped to perform entire operation (download + convert audio stream to mp3) in seconds.
+                  video_title:
+                    type: string
+                    description: Title of YouTube video from input url.
+                  audio_stream_download_size_mb:
+                    type: number
+                    description: File size of audio stream object downloaded in megabytes.
+                  abr:
+                    type: string
+                    description: Average bitrate for downloaded YouTube output file.
+                  includes_audio_track:
+                    type: boolean
+                    description: Downloaded YouTube output file includes or does not include audio track.
+                  includes_video_track:
+                    type: boolean
+                    description: Downloaded YouTube output file includes or does not include video track.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
 
 
   /thumbnail:
