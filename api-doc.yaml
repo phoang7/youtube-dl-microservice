@@ -1,0 +1,300 @@
+openapi: 3.1.0
+info:
+  title: youtube-dl-microservice API overview
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Description of the service.
+      description: Returns brief overview and purpose of the service.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /video_quality:
+    parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Fetches list of video stream objects from input url.
+      description: Retrieves list of video stream objects from input url.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itag:
+                          type: number
+                          description: Stream itag.
+                        type:
+                          type: string
+                          description: Two-part identifier for file formats and format contents composed of a "type", a "subtype".
+                        resolution:
+                          type: string
+                          description: Video resolution for stream object (video streams only).
+                        fps:
+                          type: number
+                          description: Frames per second for stream object (video streams only).
+                        video_codec:
+                          type: string
+                          description: Video compression format for stream object.
+                        is_adaptive:
+                          type:  boolean
+                          description: Stream adaptive or progressive for stream object.
+                        filesize_mb:
+                          type: number
+                          description: File size of stream object in megabytes.
+                        height:
+                          type: number
+                          description: Height in pixels for stream object (video streams only).
+                        width:
+                          type: number
+                          description: Length in pixels for stream object (video streams only).
+                        includes_audio_track:
+                          type: boolean
+                          description: Stream includes or does not include audio track.
+                        includes_video_track:
+                          type: boolean
+                          description: Stream includes or does not include video track.
+                      description: List of video stream objects from input url.
+
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
+
+  /audio_quality:
+    parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Fetches list of audio stream objects from input url.
+      description: Retrieves list of audio stream objects from input url.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  streams:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        itag:
+                          type: number
+                          description: Stream itag.
+                        type:
+                          type: string
+                          description: Two-part identifier for file formats and format contents composed of a "type", a "subtype".
+                        abr:
+                          type: string
+                          description: Average bitrate for stream object (audio streams only)
+                        audio_codec:
+                          type: string
+                          description: Audio compression format for stream object
+                        is_adaptive:
+                          type:  boolean
+                          description: Stream adaptive or progressive for stream object.
+                        filesize_mb:
+                          type: number
+                          description: File size of stream object in megabytes.
+                        includes_audio_track:
+                          type: boolean
+                          description: Stream includes or does not include audio track.
+                        includes_video_track:
+                          type: boolean
+                          description: Stream includes or does not include video track.
+                  description: List of audio stream objects from input url.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
+  /title:
+    parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Retrives the title of the YouTube video for input url.
+      description: Fetches the title of the YouTube video from input url.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: Title of YouTube video from input url.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
+
+  /download_mp4:
+
+
+  /download_mp3:
+
+
+  /thumbnail:
+    parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Fetches thumbnail image url of input YouTube url.
+      description: Returns url of thumbnail image from input Youtube video url.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  thumbnail_url:
+                    type: string
+                    description: url of thumbnail img for input YouTube video url.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
+
+  /video_info:
+    parameters:
+      - name: url
+        in: query
+        required: true
+        schema:
+          type: string
+    get:
+      summary:
+      description:
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    description: Title of YouTube video from input url.
+                  author:
+                    type: string
+                    description: Author/channel of YouTube video from input url.
+                  channel_id:
+                    type: string
+                    description: The video poster's channel id from input url.
+                  channel_url:
+                    type: string
+                    description: The video poster's channel url from input url.
+                  description:
+                  video_id:
+                    type: string
+                    description: Video id from input url.
+                  video_url:
+                    type: string
+                    description: The cleaned video url from input url.
+                  length_in_minutes:
+                    type: number
+                    description: Length of video in minutes from input url
+                  likes:
+                    type: number
+                    description: Number of likes for Youtube video from input url.
+                  publish_date:
+                    type: string
+                    format: date-time
+                    description: Publish date of video from input url.
+                  rating:
+                    type: number
+                    description: Video average rating from input url.
+                  views:
+                    type: number
+                    description: Number of views for YouTube video from input url.
+                  keywords:
+                    type: array
+                    items:
+                      type: string
+                      description: keyword
+                    description: list of keywords for input YouTube video url.
+                  thumbnail_url:
+                    type: string
+                    description: url of thumbnail img for input YouTube video url.
+        '400':
+          description: Bad Request
+          content:
+            text/html:
+              schema:
+                type: string
+
+
+  /is_ffmpeg_installed:
+    get:
+      summary: Checks if ffmpeg is installed on client.
+      description: Runs ffmpeg command on client to determine if ffmpeg is installed.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: boolean
+
+
+  /output_directory_path:
+    get:
+      summary: Gets output directory path.
+      description: Returns path where YouTube videos are downloaded to.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  output_directory_path:
+                    type: string
+                    description: Absolute path to directory where YouTube videos are downloaded to from service.
