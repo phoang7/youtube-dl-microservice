@@ -1,6 +1,7 @@
 from pytubefix import YouTube
 from pytubefix.exceptions import RegexMatchError
 from pytubefix.cli import on_progress
+from pytubefix.helpers import safe_filename
 from flask import Flask, jsonify, request
 from datetime import datetime
 import os
@@ -216,6 +217,61 @@ def download_mp3():
             'includes_video_track': audio_stream.includes_video_track
         }
         return jsonify(res), 200
+    except RegexMatchError:
+        return get_invalid_url_output(), 400
+    except Exception as ex:
+        return f'An error occured: {ex}.', 400
+    
+
+@app.route('/caption_list', methods=['GET'])
+def get_caption_list():
+    try:
+        url = request.args.get('url')
+        if not url:
+            return 'No "url" passed as query parameter.', 400
+        yt = YouTube(url)
+        captions = yt.captions
+        caption_list = []
+        for caption in captions.all():
+            res = {
+                'language': caption.name,
+                'code': caption.code
+            }
+            caption_list.append(res)
+        return jsonify(caption_list), 200
+    except RegexMatchError:
+        return get_invalid_url_output(), 400
+    except Exception as ex:
+        return f'An error occured: {ex}.', 400
+
+
+@app.route('/download_caption', methods=['POST'])
+def download_caption():
+    try:
+        json_data = request.get_json(force=True)
+        if 'url' not in json_data:
+            return 'No "url" passed in request body.', 400
+        if 'code' not in json_data:
+            return 'No "code" passed in request body.', 400
+        url = json_data['url']
+        code = json_data['code']
+        yt = YouTube(url)
+        caption = yt.captions[code]
+        if not caption:
+            return 'Invalid caption "code" passed in request body.'
+        clean_title = get_clean_video_title(yt.title)
+        start = datetime.now()
+        caption.download(title=f'{clean_title}', srt=True, output_path=output_dir)
+        print('\nCaption download complete.')
+        end = datetime.now()
+        total_seconds = (end - start).total_seconds()
+        res = {
+            'file_name': f'{safe_filename(clean_title)} ({code}).srt',
+            'file_location': output_dir if sys.platform != 'win32' else output_dir.replace('\\', '/'),
+            'filesize_mb': round(os.path.getsize(os.path.join(output_dir, f'{safe_filename(clean_title)} ({code}).srt')) / (1024 ** 2), 2),
+            'total_seconds_elasped': float(f'{total_seconds:.03f}')
+        }
+        return jsonify(res), 200 
     except RegexMatchError:
         return get_invalid_url_output(), 400
     except Exception as ex:
