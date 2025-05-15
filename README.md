@@ -2,12 +2,17 @@
 Simple REST microservice written in Flask that can download YouTube videos locally to your machine. Outputs YouTube videos as mp4 or mp3 files.
 
 ## Prerequisites
+
+### Non-Docker Approach
 - Python (https://www.python.org/)
 - pip (https://pip.pypa.io/en/stable/)
     - package manager for Python libraries
     - **Note:** If you have Python version 3.4 or later, pip is included by default.
 - FFmpeg (https://www.ffmpeg.org/) to merge streams (audio + video) together 
 - Postman (https://www.postman.com/) or **curl** (https://curl.se/) to invoke APIs
+
+### Docker Approach
+- Docker (https://www.docker.com/)
 
 ## Required packages that will be installed with virtual environment and pip
 - Flask (https://pypi.org/project/Flask/)
