@@ -19,7 +19,7 @@ if download_path:
     output_dir = os.path.abspath(download_path)
 
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def home():
     return 'Hello, this is a Flask Microservice for downloading YouTube videos!', 200
 
