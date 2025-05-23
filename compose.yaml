@@ -4,4 +4,4 @@ services:
     ports:
       - "8000:5000"
     volumes:
-      - /your_volume_path:/downloads
+      - I:\yt_tmp:/downloads
