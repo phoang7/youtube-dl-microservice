@@ -1,2 +1,2 @@
-pytubefix==10.7.2
+pytubefix==10.7.3
 flask
